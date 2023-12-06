@@ -4,8 +4,6 @@ using Handball.Models.Contracts;
 using Handball.Repositories;
 using Handball.Repositories.Contracts;
 using Handball.Utilities.Messages;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -18,128 +16,140 @@ namespace Handball.Core
 
         public Controller()
         {
-            players = new PlayerRepository();
-            teams = new TeamRepository();
+            this.players = new PlayerRepository();
+            this.teams = new TeamRepository();
         }
 
-        public string NewTeam(string name)
+        public string LeagueStandings()
         {
-            Team team = new(name);
-            if (teams.ExistsModel(name))
-            {
-                return String.Format(OutputMessages.TeamAlreadyExists, name, "TeamRepository");
-            }
-            teams.AddModel(team);
-            return String.Format(OutputMessages.TeamSuccessfullyAdded, name, "TeamRepository");
-        }
+            StringBuilder sb = new StringBuilder();
 
-        public string NewPlayer(string typeName, string name)
-        {
-            if (typeName != "Goalkeeper" && typeName != "ForwardWing" && typeName != "CenterBack")
+            sb.AppendLine($"***League Standings***");
+
+            foreach(var team in this.teams.Models.OrderByDescending(t => t.PointsEarned).ThenByDescending(t => t.OverallRating).ThenBy(t => t.Name))
             {
-                return String.Format(OutputMessages.InvalidTypeOfPosition, typeName);
+                sb.AppendLine(team.ToString());
             }
 
-            else if (players.ExistsModel(name))
-            {
-                return String.Format(OutputMessages.PlayerIsAlreadyAdded, name, "PlayerRepository", typeName);
-            }
-            IPlayer player = null;
-
-            if (typeName == "Goalkeeper")
-            {
-                player = new Goalkeeper(name);
-            }
-            else if (typeName == "CenterBack")
-            {
-                player = new CenterBack(name);
-
-            }
-            else if (typeName == "ForwardWing")
-            {
-                player = new ForwardWing(name);
-            }
-            players.AddModel(player);
-            return String.Format(OutputMessages.PlayerAddedSuccessfully, name);
+            return sb.ToString().TrimEnd();
         }
 
         public string NewContract(string playerName, string teamName)
         {
-            if (!players.ExistsModel(playerName))
+            if (!this.players.ExistsModel(playerName))
             {
-                return String.Format(OutputMessages.PlayerNotExisting, playerName, typeof(PlayerRepository).Name);
+                return string.Format(OutputMessages.PlayerNotExisting, playerName, nameof(PlayerRepository));
             }
-            else if (!teams.ExistsModel(teamName))
+
+            if (!this.teams.ExistsModel(teamName))
             {
-                return String.Format(OutputMessages.TeamNotExisting, teamName, typeof(TeamRepository).Name);
+                return string.Format(OutputMessages.TeamNotExisting, teamName, nameof(TeamRepository));
             }
 
             IPlayer player = players.GetModel(playerName);
-            if (player.Team != null)
-            {
-                return String.Format(OutputMessages.PlayerAlreadySignedContract, playerName, player.Team);
-            }
             ITeam team = teams.GetModel(teamName);
 
-            player.JoinTeam(team.Name);
+            if (player.Team != default)
+            {
+                return string.Format(OutputMessages.PlayerAlreadySignedContract, playerName, player.Team);
+            }
+
+            player.JoinTeam(teamName);
             team.SignContract(player);
-            return String.Format(OutputMessages.SignContract, playerName, team.Name);
+
+            return string.Format(OutputMessages.SignContract, playerName, teamName);
         }
 
         public string NewGame(string firstTeamName, string secondTeamName)
         {
-            ITeam firstTeam = teams.GetModel(firstTeamName);
-            ITeam secondTeam = teams.GetModel(secondTeamName);
+           ITeam firstTeam = this.teams.GetModel(firstTeamName);
+           ITeam secondTeam = this.teams.GetModel(secondTeamName);
 
-            if (firstTeam.OverallRating > secondTeam.OverallRating)
+            if (firstTeam.OverallRating != secondTeam.OverallRating)
             {
-                firstTeam.Win();
-                secondTeam.Lose();
-                return String.Format(OutputMessages.GameHasWinner, firstTeam.Name, secondTeam.Name);
-            }
-            else if (firstTeam.OverallRating < secondTeam.OverallRating)
-            {
-                firstTeam.Lose();
-                secondTeam.Win();
-                return String.Format(OutputMessages.GameHasWinner, secondTeam.Name, firstTeam.Name);
+                ITeam winner;
+                ITeam loser;
+                if(firstTeam.OverallRating > secondTeam.OverallRating)
+                {
+                    winner = firstTeam;
+                    loser = secondTeam;
+                }
+                else
+                {
+                    winner= secondTeam;
+                    loser = firstTeam;
+                }
+
+                winner.Win();
+                loser.Lose();
+
+                return string.Format(OutputMessages.GameHasWinner, winner.Name, loser.Name);
             }
             else
             {
                 firstTeam.Draw();
                 secondTeam.Draw();
-                return String.Format(OutputMessages.GameIsDraw, firstTeam.Name, secondTeam.Name);
+
+                return string.Format(OutputMessages.GameIsDraw, firstTeamName, secondTeamName);
             }
+        }
+
+        public string NewPlayer(string typeName, string name)
+        {
+            if (typeName != nameof(Goalkeeper) && typeName!= nameof(CenterBack) && typeName!= nameof(ForwardWing))
+            {
+                return string.Format(OutputMessages.InvalidTypeOfPosition, typeName);
+            }
+
+            if (players.ExistsModel(name))
+            {
+                string position = this.players.GetModel(name).GetType().Name;
+                return string.Format(OutputMessages.PlayerIsAlreadyAdded, name, nameof(PlayerRepository), position);
+            }
+
+            IPlayer player;
+            if (typeName == nameof(Goalkeeper))
+            {
+                player = new Goalkeeper(name);
+            }
+            else if(typeName == nameof(CenterBack))
+            {
+                player = new CenterBack(name);
+            }
+            else
+            {
+                player = new ForwardWing(name);
+            }
+
+            players.AddModel(player);
+            return string.Format(OutputMessages.PlayerAddedSuccessfully, name);
+        }
+
+        public string NewTeam(string name)
+        {
+            if (this.teams.ExistsModel(name))
+            {
+                return string.Format(OutputMessages.TeamAlreadyExists, name, nameof(TeamRepository));
+            }
+
+            this.teams.AddModel(new Team(name));
+            return string.Format(OutputMessages.TeamSuccessfullyAdded, name, nameof(TeamRepository));
         }
 
         public string PlayerStatistics(string teamName)
         {
-            ITeam team = teams.GetModel(teamName);
-            List<IPlayer> players = new();
-            StringBuilder sb = new();
+            StringBuilder sb = new StringBuilder();
+
             sb.AppendLine($"***{teamName}***");
-            foreach (var player in team.Players)
-            {
-                players.Add(player);
-            }
-            players = players.OrderByDescending(p => p.Rating).ThenBy(p => p.Name).ToList();
-            foreach (var player in players)
+
+            ITeam team = this.teams.GetModel(teamName);
+
+            foreach(var player in team.Players.OrderByDescending(p => p.Rating).ThenBy(p => p.Name))
             {
                 sb.AppendLine(player.ToString());
             }
-            return sb.ToString().Trim();
-        }
 
-        public string LeagueStandings()
-        {
-            StringBuilder tb = new();
-            tb.AppendLine("***League Standings***");
-            List <ITeam> allTeams = teams.Models.OrderByDescending(t => t.PointsEarned)
-                .ThenByDescending(t => t.OverallRating).ThenBy(t => t.Name).ToList();
-            foreach (var team in allTeams)
-            {
-                tb.AppendLine(team.ToString());
-            }
-            return tb.ToString().Trim();
+            return sb.ToString().TrimEnd();
         }
     }
 }
