@@ -1,4 +1,8 @@
-﻿namespace Handball.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Handball.Models
 {
     public class CenterBack : Player
     {

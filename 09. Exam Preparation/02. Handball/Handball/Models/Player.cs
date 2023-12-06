@@ -1,6 +1,7 @@
 ﻿using Handball.Models.Contracts;
 using Handball.Utilities.Messages;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Handball.Models
@@ -17,14 +18,14 @@ namespace Handball.Models
             Rating = rating;
         }
 
-        public string Name
-        {
-            get => name;
+        public string Name 
+        { 
+            get => name; 
             private set
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentNullException(ExceptionMessages.PlayerNameNull);
+                    throw new ArgumentException(ExceptionMessages.PlayerNameNull);
                 }
                 name = value;
             }

@@ -1,4 +1,9 @@
-﻿namespace Handball.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Handball.Models
 {
     public class Goalkeeper : Player
     {
@@ -9,13 +14,13 @@
         public Goalkeeper(string name)
             : base(name, rating)
         {
-
+            
         }
 
         public override void DecreaseRating()
         {
             base.Rating -= decreaseValue;
-            if (base.Rating < 1)
+            if(base.Rating < 1)
             {
                 base.Rating = 1;
             }
@@ -24,7 +29,7 @@
         public override void IncreaseRating()
         {
             base.Rating += increaseValue;
-            if (Rating > 10)
+            if(Rating > 10)
             {
                 base.Rating = 10;
             }
