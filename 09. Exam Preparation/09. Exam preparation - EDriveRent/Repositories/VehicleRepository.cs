@@ -34,7 +34,7 @@ namespace EDriveRent.Repositories
             }
         }
 
-        public IReadOnlyCollection<IVehicle> GetAll() => vehicles;
+        public IReadOnlyCollection<IVehicle> GetAll() => vehicles.AsReadOnly();
 
         public bool RemoveById(string identifier)
         {

@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace EDriveRent.Repositories
 {
-
-    
     public class UserRepository : IRepository<IUser>
     {
         List<IUser> users;

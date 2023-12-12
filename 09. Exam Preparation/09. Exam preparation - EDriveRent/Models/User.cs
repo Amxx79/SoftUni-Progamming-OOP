@@ -70,20 +70,22 @@ namespace EDriveRent.Models
 
         public void DecreaseRating()
         {
-            Rating -= 2;
-            if (Rating < 0)
+            if (this.Rating < 2)
             {
-                Rating = 0;
+                this.Rating = 0;
+                this.IsBlocked = true;
             }
-            IsBlocked = true;
+            else
+            {
+                this.Rating -= 2;
+            }
         }
 
         public void IncreaseRating()
         {
-            Rating += 0.5;
-            if (Rating > 10)
+            if (this.Rating < 10)
             {
-                Rating = 10;
+                this.Rating += 0.5;
             }
         }
 
