@@ -19,9 +19,9 @@ namespace UniversityCompetition.Models
         public University(int universityId, string uniName, string category, int capacity, List<int> requiredSubs)
         {
             Id = universityId;
-            this.name = uniName;
-            this.category = category;
-            this.capacity = capacity;
+            this.Name = uniName;
+            this.Category = category;
+            this.Capacity = capacity;
             requiredSubjects = requiredSubs;
         }
         public int Id { get; private set; }
