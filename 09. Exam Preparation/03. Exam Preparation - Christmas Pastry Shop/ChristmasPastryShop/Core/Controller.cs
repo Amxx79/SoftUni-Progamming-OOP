@@ -37,7 +37,7 @@ namespace ChristmasPastryShop.Core
             }
             else if (size != "Large" && size != "Middle" && size != "Small")
             {
-                return OutputMessages.InvalidCocktailSize;
+                return string.Format(OutputMessages.InvalidCocktailSize, size);
             }
             IBooth booth = booths.Models.FirstOrDefault(b => b.BoothId == boothId);
             var cocktail = booth
