@@ -18,8 +18,8 @@ namespace BookingApp.Core
     public class Controller : IController
     {
         private HotelRepository hotels;
-
         public Controller()
+
         {
             hotels = new HotelRepository();
         }
@@ -73,13 +73,13 @@ namespace BookingApp.Core
             IHotel hotel = hotels.All().FirstOrDefault(h => h.FullName == hotelName);
             if (hotel == null) 
             {
-                sb.AppendLine($"Profile {hotelName} doesn't exist!");
-                return sb.ToString().Trim();
+                return $"Profile {hotelName} doesn't exist!";
             }
             sb.AppendLine($"Hotel name: {hotel.FullName}");
             sb.AppendLine($"--{hotel.Category} star hotel");
             sb.AppendLine($"--Turnover: {hotel.Turnover:F2} $");
             sb.AppendLine("--Bookings:");
+            sb.AppendLine();
             if (hotel.Bookings.All().Count == 0)
             {
                 sb.AppendLine("none");
@@ -102,18 +102,19 @@ namespace BookingApp.Core
             {
                 return $"Profile {hotelName} doesn’t exist!";
             }
-            if (hotel.Rooms.Select(roomTypeName) == null)
-            {
-                return "Room type is not created yet!";
-            }
             if (roomTypeName != nameof(DoubleBed) && roomTypeName != nameof(Studio) && roomTypeName != nameof(Apartment))
             {
                 throw new ArgumentException(ExceptionMessages.RoomTypeIncorrect);
             }
-            IRoom room = hotel.Rooms.All().FirstOrDefault(r => r.GetType().Name == roomTypeName);
-            if (room.PricePerNight != 0)
+            if (hotel.Rooms.Select(roomTypeName) == null)
             {
-                return "Price is already set!";
+                return "Room type is not created yet!";
+            }
+
+            IRoom room = hotel.Rooms.All().FirstOrDefault(r => r.GetType().Name == roomTypeName);
+            if (room.PricePerNight > 0)
+            {
+                throw new InvalidOperationException("Price is already set!");
             }
             room.SetPrice(price);
             return $"Price of {roomTypeName} room type in {hotelName} hotel is set!";
