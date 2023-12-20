@@ -6,13 +6,12 @@
     {
         private string name;
         private double points;
-        private int timeToCatch;
 
         protected Fish(string name, double points, int timeToCatch)
         {
             Name = name;
             Points = points;
-            this.timeToCatch = timeToCatch;
+            this.TimeToCatch = timeToCatch;
         }
 
         public string Name
@@ -41,7 +40,7 @@
             }
         }
 
-        public int TimeToCatch => timeToCatch;
+        public int TimeToCatch { get; private set; }
 
         public override string ToString()
         {

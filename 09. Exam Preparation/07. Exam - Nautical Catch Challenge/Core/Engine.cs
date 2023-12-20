@@ -17,6 +17,7 @@
         }
         public void Run()
         {
+
             while (true)
             {
                 string[] input = reader.ReadLine().Split();
