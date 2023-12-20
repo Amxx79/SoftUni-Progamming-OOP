@@ -78,5 +78,6 @@ namespace Railway.Tests
             RailwayStation rail = new RailwayStation("Train");
             Assert.AreEqual(rail.Name, "Train");
         }
+
     }
 }
